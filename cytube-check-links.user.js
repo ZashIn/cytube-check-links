@@ -21,17 +21,23 @@ const playlistContainer = document.querySelector('#queue'),
 if (!playlistContainer || !buttonContainer) return;
 
 GM.addStyle(`
-#queue a.unknown {
+#queue .unknown {
     color: yellow;
 }
-#queue a.online {
+#queue .online {
     color: green;
 }
-#queue a.offline {
+#queue .offline {
     color: red;
 }
-#queue a.private {
+#queue .private {
     color: orangered;
+}
+#queue .link-status {
+  /* same as qe_time */
+  float: right;
+  font-family: Monospace;
+  margin-right: 1em;
 }
 `);
 
@@ -74,14 +80,17 @@ async function checkPlaylistLinks() {
         if (stat < 100 || stat >= 404) {
           console.log(`video offline (${stat}):`, link);
           link.classList.add('offline');
+          addStatusText(link, stat, 'offline');
         } else if (stat > 400 && stat <= 403) {
           console.log(`video private (${stat}):`, link);
           link.classList.add('private');
+          addStatusText(link, stat, 'private');
         } else if (stat == 200) {
           link.classList.add('online');
         } else {
           console.log(`other video status (${stat}):`, link);
           link.classList.add('unknown');
+          addStatusText(link, stat, 'unknown');
         }
       },
     };
@@ -105,6 +114,15 @@ async function checkPlaylistLinks() {
   );
   console.log(...linkStatusEntries.flat());
   addDeleteButton();
+}
+
+function addStatusText(link, statusText, statusClass) {
+  link.parentElement
+    .querySelector(':scope > span.qe_time')
+    .insertAdjacentHTML(
+      'afterend',
+      `<span class="link-status ${statusClass}">${statusText}</span>`
+    );
 }
 
 function addDeleteButton() {
