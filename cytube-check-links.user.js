@@ -102,6 +102,15 @@ async function checkPlaylistLinks() {
   addDeleteButton();
 }
 
+function addStatusText(link, statusText, statusClass) {
+  link.parentElement
+    .querySelector(':scope > span.qe_time')
+    .insertAdjacentHTML(
+      'afterend',
+      `<span class="link-status ${statusClass}">${statusText}</span>`
+    );
+}
+
 function logLinkStatus(playlistLinks) {
   const checked = playlistContainer.querySelectorAll(`.checked`).length;
   const linkStatus = {
@@ -118,15 +127,6 @@ function logLinkStatus(playlistLinks) {
     linkStatusEntries.map(([k, v]) => `${v.length} ${k}`).join(', ')
   );
   console.log(...linkStatusEntries.flat());
-}
-
-function addStatusText(link, statusText, statusClass) {
-  link.parentElement
-    .querySelector(':scope > span.qe_time')
-    .insertAdjacentHTML(
-      'afterend',
-      `<span class="link-status ${statusClass}">${statusText}</span>`
-    );
 }
 
 function addDeleteButton() {
@@ -148,7 +148,7 @@ function addDeleteButton() {
 }
 
 function getOfflineLinks() {
-  return playlistContainer.querySelectorAll('.offline,.private');
+  return playlistContainer.querySelectorAll('a.offline, a.private');
 }
 
 async function deleteOfflineLinks() {
