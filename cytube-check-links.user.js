@@ -4,7 +4,7 @@
 // @match       https://cytu.be/r/*
 // @grant       GM.addStyle
 // @grant       GM.xmlHttpRequest
-// @version     1.0
+// @version     1.0.1
 // @author      Zash
 // @description Adds button to check playlist for offline / private videos
 // @run-at      document-idle
@@ -56,22 +56,37 @@ buttonContainer.insertAdjacentElement(
 ).onclick = checkPlaylistLinks;
 
 // Add make all permanent button
-buttonContainer.insertAdjacentElement(
-  'beforeend',
-  createHTMLElement(
-    `<button id="makeAllPermanent" class="btn btn-sm btn-default collapsed">
-  make all permanent
-</button>`
-  )
-).onclick = async () => {
-  for (const button of playlistContainer.querySelectorAll(
-    'li.queue_temp button.qbtn-tmp'
-  )) {
-    // if (doNotBLockBrowser) await asyncRequestAnimationFrame();
-    await wait(clickDelay);
-    button.click();
-  }
-};
+if (!addMakeAllPermanentButton()) {
+  const observer = new MutationObserver((mutationList, observer) => {
+    // Wait for the button group to be added (empty without edit permissions)
+    if (addMakeAllPermanentButton() || playlistContainer.querySelector('.btn-group'))
+      observer.disconnect();
+  });
+  observer.observe(playlistContainer, { childList: true, subtree: true });
+}
+
+function addMakeAllPermanentButton() {
+  const id = 'makeAllPermanent';
+  if (!playlistContainer.querySelector('button.qbtn-tmp')) return false;
+  if (document.getElementById(id)) return true;
+  buttonContainer.insertAdjacentElement(
+    'beforeend',
+    createHTMLElement(
+      `<button id="${id}" class="btn btn-sm btn-default collapsed">
+    make all permanent
+  </button>`
+    )
+  ).onclick = async () => {
+    for (const button of playlistContainer.querySelectorAll(
+      'li.queue_temp button.qbtn-tmp'
+    )) {
+      // if (doNotBLockBrowser) await asyncRequestAnimationFrame();
+      await wait(clickDelay);
+      button.click();
+    }
+  };
+  return true;
+}
 
 async function checkPlaylistLinks() {
   const playlistLinks = playlistContainer.querySelectorAll('a');
