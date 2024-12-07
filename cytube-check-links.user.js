@@ -19,6 +19,9 @@ const buttonContainer = document.querySelector('#plcontrol');
 if (!buttonContainer) return;
 
 GM.addStyle(`
+#queue a.checked {
+    color: yellow;
+}
 #queue a.online {
     color: green;
 }
@@ -44,45 +47,43 @@ async function checkPlaylistLinks() {
       requestLimit && requestLimit < playlistLinks.length ? requestLimit + '/' : ''
     }${playlistLinks.length} playlist videos...`
   );
-  let requests = [],
+  let requestStack = [],
+    requests = 0,
     online = 0,
     offline = 0,
     private = 0;
   for (const link of playlistLinks) {
-    if (requestLimit && requests.length > requestLimit) break;
+    if (requestLimit && ++requests > requestLimit) break;
     const isYoutubeUrl = youtubeRegex.test(new URL(link.href).hostname);
-    requests.push(
-      GM.xmlHttpRequest({
-        url: isYoutubeUrl ? youtubeCheckUrl + link.href : link.href,
-        method: 'head',
-        onerror(response) {
-          console.log('video offline:', link, response);
+    const rDetails = {
+      url: isYoutubeUrl ? youtubeCheckUrl + link.href : link.href,
+      method: 'head',
+      onerror(response) {
+        rDetails.onload(response);
+      },
+      onload(response) {
+        link.classList.add('checked');
+        const stat = response.status;
+        if (stat < 100 || stat >= 404) {
+          console.log(`video offline (${stat}):`, link);
           link.classList.add('offline');
           offline++;
-        },
-        onload(response) {
-          switch (response.status) {
-            case 200:
-              link.classList.add('online');
-              online++;
-              break;
-            case 403:
-              console.log('video private (403):', link);
-              link.classList.add('private');
-              private++;
-              break;
-            case 404:
-              console.log('video offline (404):', link);
-              link.classList.add('offline');
-              offline++;
-              break;
-          }
-        },
-      })
-    );
+        } else if (stat > 400 && stat <= 403) {
+          console.log(`video private (${stat}):`, link);
+          link.classList.add('private');
+          private++;
+        } else if (stat == 200) {
+          link.classList.add('online');
+          online++;
+        } else {
+          console.log(`other video status (${stat}):`, link);
+        }
+      },
+    };
+    requestStack.push(GM.xmlHttpRequest(rDetails));
   }
 
-  await Promise.allSettled(requests);
+  await Promise.allSettled(requestStack);
   console.log(
     `playlist status: ${online} online, ${offline} offline, ${private} private`
   );
