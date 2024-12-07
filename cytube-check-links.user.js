@@ -55,6 +55,7 @@ async function checkPlaylistLinks() {
   for (const link of playlistLinks) {
     if (link.classList.contains('checked')) continue;
     if (requestLimit && ++requests > requestLimit) break;
+    await asyncRequestAnimationFrame();
     const isYoutubeUrl = youtubeRegex.test(new URL(link.href).hostname);
     const rDetails = {
       url: isYoutubeUrl ? youtubeCheckUrl + link.href : link.href,
@@ -98,4 +99,10 @@ function createHTMLElement(html) {
   const template = document.createElement('template');
   template.innerHTML = html;
   return template.content.firstChild;
+}
+
+async function asyncRequestAnimationFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(resolve);
+  });
 }
