@@ -11,6 +11,7 @@
 // ==/UserScript==
 
 const requestLimit = 0, // max number of request send, 0 = all
+  doNotBLockBrowser = true, // slows down requests to limit browser stalls (via requestAnimationFrame)
   // source: https://stackoverflow.com/a/59189907
   youtubeCheckUrl = 'https://www.youtube.com/oembed?url=',
   youtubeRegex = /^([^.]+\.)?youtube\./;
@@ -65,7 +66,8 @@ async function checkPlaylistLinks() {
   for (const link of playlistLinks) {
     if (link.classList.contains('checked')) continue;
     if (requestLimit && ++requests > requestLimit) break;
-    await asyncRequestAnimationFrame();
+    if (doNotBlockBrowser) await asyncRequestAnimationFrame();
+
     const isYoutubeUrl = youtubeRegex.test(new URL(link.href).hostname);
     const rDetails = {
       url: isYoutubeUrl ? youtubeCheckUrl + link.href : link.href,
