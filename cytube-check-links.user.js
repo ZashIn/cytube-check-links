@@ -98,6 +98,7 @@ async function checkPlaylistLinks() {
   await Promise.allSettled(requestStack);
   logLinkStatus(playlistLinks);
   if (getOfflineLinks().length) {
+    addCopyOfflineButton();
     addDeleteButton();
   }
 }
@@ -129,6 +130,27 @@ function logLinkStatus(playlistLinks) {
   const offlineVideos = getOfflineVideoNames();
   if (offlineVideos.length) {
     console.log(`offline/private videos:\n${offlineVideos.join('\n')}`);
+  }
+}
+
+function addCopyOfflineButton(show = true) {
+  const id = 'copyOfflineVideos';
+  let button = document.getElementById(id);
+  if (!button) {
+    button = buttonContainer.insertAdjacentElement(
+      'beforeend',
+      createHTMLElement(
+        `<button id="${id}" class="btn btn-sm btn-default collapsed" style="display: none;">
+    copy offline
+  </button>`
+      )
+    );
+    button.onclick = () => {
+      navigator.clipboard.writeText(getOfflineVideoNames().join('\n'));
+    };
+  }
+  if (show) {
+    button.style.display = '';
   }
 }
 
