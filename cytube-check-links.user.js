@@ -11,7 +11,8 @@
 // ==/UserScript==
 
 const requestLimit = 0, // max number of request send, 0 = all
-  doNotBLockBrowser = true, // slows down requests to limit browser stalls (via requestAnimationFrame)
+  doNotBlockBrowser = true, // slows down requests to limit browser stalls (via requestAnimationFrame)
+  clickDelay = 100,
   // source: https://stackoverflow.com/a/59189907
   youtubeCheckUrl = 'https://www.youtube.com/oembed?url=',
   youtubeRegex = /^([^.]+\.)?youtube\./;
@@ -194,8 +195,8 @@ async function deleteOfflineLinks() {
   console.log(`deleting ${offlineLinks.length} offline links...`);
   for (const link of offlineLinks) {
     const deleteButton = link.parentElement.querySelector('.qbtn-delete');
-    await asyncRequestAnimationFrame();
     if (deleteButton) {
+      await wait(clickDelay);
       deleteButton.click();
       console.log(link, 'deleted');
       deleted++;
@@ -220,4 +221,8 @@ async function asyncRequestAnimationFrame() {
   return new Promise((resolve) => {
     requestAnimationFrame(resolve);
   });
+}
+
+async function wait(delay) {
+  await new Promise((resolve) => setTimeout(resolve, delay));
 }
