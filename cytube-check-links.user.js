@@ -10,7 +10,7 @@
 // @run-at      document-idle
 // ==/UserScript==
 
-const requestLimit = 0,
+const requestLimit = 0, // max number of request send, 0 = all
   // source: https://stackoverflow.com/a/59189907
   youtubeCheckUrl = 'https://www.youtube.com/oembed?url=',
   youtubeRegex = /^([^.]+\.)?youtube\./;
@@ -18,6 +18,7 @@ const requestLimit = 0,
 // cytube
 const playlistContainer = document.querySelector('#queue'),
   buttonContainer = document.querySelector('#plcontrol');
+
 if (!playlistContainer || !buttonContainer) return;
 
 GM.addStyle(`
@@ -41,6 +42,7 @@ GM.addStyle(`
 }
 `);
 
+// Add check button
 buttonContainer.insertAdjacentElement(
   'beforeend',
   createHTMLElement(
@@ -199,6 +201,8 @@ async function deleteOfflineLinks() {
   }
   console.log(`${deleted / offlineLinks.length} offline links deleted.`);
 }
+
+// Helpers
 
 /**
  * @param {string} html
