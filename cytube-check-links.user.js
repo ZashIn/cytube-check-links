@@ -98,6 +98,11 @@ async function checkPlaylistLinks() {
   }
 
   await Promise.allSettled(requestStack);
+  logLinkStatus(playlistLinks);
+  addDeleteButton();
+}
+
+function logLinkStatus(playlistLinks) {
   const checked = playlistContainer.querySelectorAll(`.checked`).length;
   const linkStatus = {
     online: playlistContainer.querySelectorAll(`.online`),
@@ -113,7 +118,6 @@ async function checkPlaylistLinks() {
     linkStatusEntries.map(([k, v]) => `${v.length} ${k}`).join(', ')
   );
   console.log(...linkStatusEntries.flat());
-  addDeleteButton();
 }
 
 function addStatusText(link, statusText, statusClass) {
