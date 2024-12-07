@@ -19,7 +19,7 @@ const buttonContainer = document.querySelector('#plcontrol');
 if (!buttonContainer) return;
 
 GM.addStyle(`
-#queue a.checked {
+#queue a.unknown {
     color: yellow;
 }
 #queue a.online {
@@ -40,7 +40,8 @@ buttonContainer.insertAdjacentElement('beforeend', button);
 button.onclick = checkPlaylistLinks;
 
 async function checkPlaylistLinks() {
-  const playlistLinks = document.querySelectorAll('#queue a');
+  const container = document.querySelector('#queue');
+  const playlistLinks = container.querySelectorAll('a');
 
   console.log(
     `checking ${
@@ -48,10 +49,7 @@ async function checkPlaylistLinks() {
     }${playlistLinks.length} playlist videos...`
   );
   let requestStack = [],
-    requests = 0,
-    online = 0,
-    offline = 0,
-    private = 0;
+    requests = 0;
   for (const link of playlistLinks) {
     if (link.classList.contains('checked')) continue;
     if (requestLimit && ++requests > requestLimit) break;
@@ -66,19 +64,18 @@ async function checkPlaylistLinks() {
       onload(response) {
         link.classList.add('checked');
         const stat = response.status;
+        link.dataset.status = stat;
         if (stat < 100 || stat >= 404) {
           console.log(`video offline (${stat}):`, link);
           link.classList.add('offline');
-          offline++;
         } else if (stat > 400 && stat <= 403) {
           console.log(`video private (${stat}):`, link);
           link.classList.add('private');
-          private++;
         } else if (stat == 200) {
           link.classList.add('online');
-          online++;
         } else {
           console.log(`other video status (${stat}):`, link);
+          link.classList.add('unknown');
         }
       },
     };
@@ -86,9 +83,21 @@ async function checkPlaylistLinks() {
   }
 
   await Promise.allSettled(requestStack);
-  console.log(
-    `playlist status: ${online} online, ${offline} offline, ${private} private`
+  const checked = container.querySelectorAll(`.checked`).length;
+  const linkStatus = {
+    online: container.querySelectorAll(`.online`),
+    offline: container.querySelectorAll(`.offline`),
+    private: container.querySelectorAll(`.private`),
+    unknown: container.querySelectorAll(`.unknown`),
+  };
+  const linkStatusEntries = Object.entries(linkStatus).filter(
+    ([k, v]) => k == 'online' || v.length > 0
   );
+  console.log(
+    `playlist status: ${checked}/${playlistLinks.length} checked:`,
+    linkStatusEntries.map(([k, v]) => `${v.length} ${k}`).join(', ')
+  );
+  console.log(...linkStatusEntries.flat());
 }
 
 /**
