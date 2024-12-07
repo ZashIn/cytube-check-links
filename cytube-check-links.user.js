@@ -54,6 +54,24 @@ buttonContainer.insertAdjacentElement(
   )
 ).onclick = checkPlaylistLinks;
 
+// Add make all permanent button
+buttonContainer.insertAdjacentElement(
+  'beforeend',
+  createHTMLElement(
+    `<button id="makeAllPermanent" class="btn btn-sm btn-default collapsed">
+  make all permanent
+</button>`
+  )
+).onclick = async () => {
+  for (const button of playlistContainer.querySelectorAll(
+    'li.queue_temp button.qbtn-tmp'
+  )) {
+    // if (doNotBLockBrowser) await asyncRequestAnimationFrame();
+    await wait(clickDelay);
+    button.click();
+  }
+};
+
 async function checkPlaylistLinks() {
   const playlistLinks = playlistContainer.querySelectorAll('a');
 
