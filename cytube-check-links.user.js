@@ -10,13 +10,15 @@
 // @run-at      document-idle
 // ==/UserScript==
 
-const youtubeRegex = /^([^.]+\.)?youtube\./,
+const requestLimit = 0,
   // source: https://stackoverflow.com/a/59189907
   youtubeCheckUrl = 'https://www.youtube.com/oembed?url=',
-  requestLimit = 0;
+  youtubeRegex = /^([^.]+\.)?youtube\./;
 
-const buttonContainer = document.querySelector('#plcontrol');
-if (!buttonContainer) return;
+// cytube
+const playlistContainer = document.querySelector('#queue'),
+  buttonContainer = document.querySelector('#plcontrol');
+if (!playlistContainer || !buttonContainer) return;
 
 GM.addStyle(`
 #queue a.unknown {
@@ -32,16 +34,18 @@ GM.addStyle(`
     color: orangered;
 }
 `);
-let button =
-  createHTMLElement(`<button id="checkLinks" class="btn btn-sm btn-default collapsed">
+
+buttonContainer.insertAdjacentElement(
+  'beforeend',
+  createHTMLElement(
+    `<button id="checkLinks" class="btn btn-sm btn-default collapsed">
   check
-</button>`);
-buttonContainer.insertAdjacentElement('beforeend', button);
-button.onclick = checkPlaylistLinks;
+</button>`
+  )
+).onclick = checkPlaylistLinks;
 
 async function checkPlaylistLinks() {
-  const container = document.querySelector('#queue');
-  const playlistLinks = container.querySelectorAll('a');
+  const playlistLinks = playlistContainer.querySelectorAll('a');
 
   console.log(
     `checking ${
@@ -83,12 +87,12 @@ async function checkPlaylistLinks() {
   }
 
   await Promise.allSettled(requestStack);
-  const checked = container.querySelectorAll(`.checked`).length;
+  const checked = playlistContainer.querySelectorAll(`.checked`).length;
   const linkStatus = {
-    online: container.querySelectorAll(`.online`),
-    offline: container.querySelectorAll(`.offline`),
-    private: container.querySelectorAll(`.private`),
-    unknown: container.querySelectorAll(`.unknown`),
+    online: playlistContainer.querySelectorAll(`.online`),
+    offline: playlistContainer.querySelectorAll(`.offline`),
+    private: playlistContainer.querySelectorAll(`.private`),
+    unknown: playlistContainer.querySelectorAll(`.unknown`),
   };
   const linkStatusEntries = Object.entries(linkStatus).filter(
     ([k, v]) => k == 'online' || v.length > 0
