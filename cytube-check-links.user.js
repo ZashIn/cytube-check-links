@@ -50,8 +50,6 @@ buttonContainer.insertAdjacentElement(
   )
 ).onclick = checkPlaylistLinks;
 
-addDeleteButton();
-
 async function checkPlaylistLinks() {
   const playlistLinks = playlistContainer.querySelectorAll('a');
 
@@ -99,7 +97,9 @@ async function checkPlaylistLinks() {
 
   await Promise.allSettled(requestStack);
   logLinkStatus(playlistLinks);
-  addDeleteButton();
+  if (getOfflineLinks().length) {
+    addDeleteButton();
+  }
 }
 
 function addStatusText(link, statusText, statusClass) {
@@ -132,20 +132,21 @@ function logLinkStatus(playlistLinks) {
   }
 }
 
-function addDeleteButton() {
-  let button = document.getElementById('deleteOffline');
+function addDeleteButton(show = true) {
+  const id = 'deleteOffline';
+  let button = document.getElementById(id);
   if (!button) {
     button = buttonContainer.insertAdjacentElement(
       'beforeend',
       createHTMLElement(
-        `<button id="deleteOffline" class="btn btn-sm btn-default collapsed" style="display: none;">
+        `<button id="${id}" class="btn btn-sm btn-default collapsed" style="display: none;">
     delete offline
   </button>`
       )
     );
     button.onclick = deleteOfflineLinks;
   }
-  if (playlistContainer.querySelector('.qbtn-delete') && getOfflineLinks().length) {
+  if (show && playlistContainer.querySelector('.qbtn-delete')) {
     button.style.display = '';
   }
 }
