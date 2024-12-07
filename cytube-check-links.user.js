@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name        cytu.be link checker
-// @namespace   Violentmonkey Scripts
+// @name        cytu.be checker links
+// @namespace   cytu.be
 // @match       https://cytu.be/r/*
 // @grant       GM.addStyle
 // @grant       GM.xmlHttpRequest
