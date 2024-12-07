@@ -44,6 +44,8 @@ buttonContainer.insertAdjacentElement(
   )
 ).onclick = checkPlaylistLinks;
 
+addDeleteButton();
+
 async function checkPlaylistLinks() {
   const playlistLinks = playlistContainer.querySelectorAll('a');
 
@@ -102,6 +104,45 @@ async function checkPlaylistLinks() {
     linkStatusEntries.map(([k, v]) => `${v.length} ${k}`).join(', ')
   );
   console.log(...linkStatusEntries.flat());
+  addDeleteButton();
+}
+
+function addDeleteButton() {
+  let button = document.getElementById('deleteOffline');
+  if (!button) {
+    button = buttonContainer.insertAdjacentElement(
+      'beforeend',
+      createHTMLElement(
+        `<button id="deleteOffline" class="btn btn-sm btn-default collapsed" style="display: none;">
+    delete offline
+  </button>`
+      )
+    );
+    button.onclick = deleteOfflineLinks;
+  }
+  if (playlistContainer.querySelector('.qbtn-delete') && getOfflineLinks().length) {
+    button.style.display = '';
+  }
+}
+
+function getOfflineLinks() {
+  return playlistContainer.querySelectorAll('.offline,.private');
+}
+
+async function deleteOfflineLinks() {
+  const offlineLinks = getOfflineLinks();
+  let deleted = 0;
+  console.log(`deleting ${offlineLinks.length} offline links...`);
+  for (const link of offlineLinks) {
+    const deleteButton = link.parentElement.querySelector('.qbtn-delete');
+    await asyncRequestAnimationFrame();
+    if (deleteButton) {
+      deleteButton.click();
+      console.log(link, 'deleted');
+      deleted++;
+    }
+  }
+  console.log(`${deleted / offlineLinks.length} offline links deleted.`);
 }
 
 /**
