@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        cytu.be checker links
+// @name        cytube check links
 // @namespace   cytu.be
 // @match       https://cytu.be/r/*
 // @grant       GM.addStyle
