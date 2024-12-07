@@ -53,6 +53,7 @@ async function checkPlaylistLinks() {
     offline = 0,
     private = 0;
   for (const link of playlistLinks) {
+    if (link.classList.contains('checked')) continue;
     if (requestLimit && ++requests > requestLimit) break;
     const isYoutubeUrl = youtubeRegex.test(new URL(link.href).hostname);
     const rDetails = {
