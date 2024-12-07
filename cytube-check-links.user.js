@@ -112,12 +112,12 @@ function addStatusText(link, statusText, statusClass) {
 }
 
 function logLinkStatus(playlistLinks) {
-  const checked = playlistContainer.querySelectorAll(`.checked`).length;
+  const checked = playlistContainer.querySelectorAll(`a.checked`).length;
   const linkStatus = {
-    online: playlistContainer.querySelectorAll(`.online`),
-    offline: playlistContainer.querySelectorAll(`.offline`),
-    private: playlistContainer.querySelectorAll(`.private`),
-    unknown: playlistContainer.querySelectorAll(`.unknown`),
+    online: playlistContainer.querySelectorAll(`a.online`),
+    offline: playlistContainer.querySelectorAll(`a.offline`),
+    private: playlistContainer.querySelectorAll(`a.private`),
+    unknown: playlistContainer.querySelectorAll(`a.unknown`),
   };
   const linkStatusEntries = Object.entries(linkStatus).filter(
     ([k, v]) => k == 'online' || v.length > 0
@@ -126,7 +126,10 @@ function logLinkStatus(playlistLinks) {
     `playlist status: ${checked}/${playlistLinks.length} checked:`,
     linkStatusEntries.map(([k, v]) => `${v.length} ${k}`).join(', ')
   );
-  console.log(...linkStatusEntries.flat());
+  const offlineVideos = getOfflineVideoNames();
+  if (offlineVideos.length) {
+    console.log(`offline/private videos:\n${offlineVideos.join('\n')}`);
+  }
 }
 
 function addDeleteButton() {
@@ -149,6 +152,13 @@ function addDeleteButton() {
 
 function getOfflineLinks() {
   return playlistContainer.querySelectorAll('a.offline, a.private');
+}
+/**
+ * @param {NodeListOf<HTMLAnchorElement} offlineLinks
+ * @returns {string[]}
+ */
+function getOfflineVideoNames(offlineLinks = getOfflineLinks()) {
+  return Array.prototype.map.call(offlineLinks, (a) => a.textContent);
 }
 
 async function deleteOfflineLinks() {
