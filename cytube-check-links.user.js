@@ -8,6 +8,7 @@
 // @author      Zash
 // @description Adds button to check playlist for offline / private videos
 // @run-at      document-idle
+// @downloadURL https://github.com/ZashIn/cytube-check-links/blob/main/cytube-check-links.user.js
 // ==/UserScript==
 
 const requestLimit = 0, // max number of request send, 0 = all
