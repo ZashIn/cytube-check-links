@@ -4,11 +4,11 @@
 // @match       https://cytu.be/r/*
 // @grant       GM.addStyle
 // @grant       GM.xmlHttpRequest
-// @version     1.0.1
+// @version     1.0.2
 // @author      Zash
 // @description Adds button to check playlist for offline / private videos
 // @run-at      document-idle
-// @downloadURL https://github.com/ZashIn/cytube-check-links/blob/main/cytube-check-links.user.js
+// @downloadURL https://github.com/ZashIn/cytube-check-links/raw/refs/heads/main/cytube-check-links.user.js
 // ==/UserScript==
 
 const requestLimit = 0, // max number of request send, 0 = all
